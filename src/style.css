@@ -1,0 +1,49 @@
+.vin-recalls-container {
+    background-color: #e9e9e9;
+    padding: 2rem;
+    font-family: sans-serif;
+    max-width: 500px;
+    margin: auto;
+}
+
+.vin-recalls-container h2 {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.vin-recalls-search-box {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.vin-recalls-search-box input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.vin-recalls-search-box button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.vin-recalls-link {
+    text-align: center;
+    display: block;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.vin-recalls-note {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #555;
+}
