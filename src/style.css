@@ -67,3 +67,23 @@
     color: #000;
     margin: 0.7rem 0;
 }
+
+.vin-recalls-results {
+    margin-top: 1.5rem;
+}
+
+.vin-recalls-message {
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.vin-recalls-message.has-recall,
+.vin-recalls-message.no-recall {
+    background-color: #f0f0f0;
+    color: #333333;
+    border: 1px solid #cccccc;
+}
