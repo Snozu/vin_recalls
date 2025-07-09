@@ -3,7 +3,7 @@
  * Plugin Name: Vin Recalls
  * Description: A plugin to search for vehicle recalls using a VIN.
  * Version: 1.0
- * Author: Gemini
+ * Author: Haziel Zul
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,22 +33,46 @@ add_action('rest_api_init', function () {
 function vin_recalls_search_callback(WP_REST_Request $request) {
     $vin = $request->get_param('vin');
 
-    // --- Database Connection Placeholder ---
-    // IMPORTANT: Replace with your actual remote database connection logic.
-    // For now, we'll return dummy data.
+    // Establish a new connection to the remote database
+    $remote_db = new wpdb(REMOTE_DB_USER, REMOTE_DB_PASSWORD, REMOTE_DB_NAME, REMOTE_DB_HOST);
+
+    // Check for connection errors
+    if ( $remote_db->error ) {
+        return new WP_Error( 'db_connection_error', 'Could not connect to the remote database: ' . $remote_db->error, array( 'status' => 500 ) );
+    }
 
     if (empty($vin)) {
         return new WP_Error('no_vin', 'Invalid VIN', ['status' => 400]);
     }
 
-    // Dummy data for demonstration
-    $dummy_data = [
-        'vin' => $vin,
-        'recalls' => [
-            ['date' => '2023-01-15', 'description' => 'Faulty airbag inflator.'],
-            ['date' => '2023-05-20', 'description' => 'Brake system software update required.'],
-        ]
-    ];
+    // Sanitize the VIN input to prevent SQL injection
+    $sanitized_vin = $remote_db->_real_escape($vin);
 
-    return new WP_REST_Response($dummy_data, 200);
+    // Query the remote database
+    $results = $remote_db->get_results(
+        $remote_db->prepare(
+            "SELECT recall_date, recall_description FROM vin_recalls WHERE vin_number = %s",
+            $sanitized_vin
+        )
+    );
+
+    if ( $remote_db->last_error ) {
+        return new WP_Error( 'db_query_error', 'Database query failed: ' . $remote_db->last_error, array( 'status' => 500 ) );
+    }
+
+    $recalls = [];
+    if ( $results ) {
+        foreach ( $results as $row ) {
+            $recalls[] = [
+                'date'        => $row->recall_date,
+                'description' => $row->recall_description,
+            ];
+        }
+    }
+
+    if (empty($recalls)) {
+        return new WP_Error('no_recalls_found', 'No recalls found for this VIN.', ['status' => 404]);
+    }
+
+    return new WP_REST_Response(['vin' => $vin, 'recalls' => $recalls], 200);
 }
