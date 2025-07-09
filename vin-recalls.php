@@ -16,9 +16,22 @@ function vin_recalls_shortcode() {
 add_shortcode('vin_recall_search', 'vin_recalls_shortcode');
 
 function vin_recalls_enqueue_scripts() {
-    if (is_page() && has_shortcode(get_the_content(), 'vin_recall_search')) {
-        wp_enqueue_script('vin-recalls-react', plugin_dir_url(__FILE__) . 'src/index.js', ['wp-element'], '1.0', true);
-    }
+    $asset_file = include(plugin_dir_path(__FILE__) . 'build/index.asset.php');
+
+    wp_enqueue_script(
+        'vin-recalls-react',
+        plugin_dir_url(__FILE__) . 'build/index.js',
+        $asset_file['dependencies'],
+        $asset_file['version'],
+        true
+    );
+
+    wp_enqueue_style(
+        'vin-recalls-style',
+        plugin_dir_url(__FILE__) . 'build/index.css',
+        [],
+        $asset_file['version']
+    );
 }
 add_action('wp_enqueue_scripts', 'vin_recalls_enqueue_scripts');
 
