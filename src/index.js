@@ -22,7 +22,9 @@ const App = () => {
         setVin(searchVin);
         setMessage('');
 
-        apiFetch({ path: `/vin-recalls/v1/search?vin=${searchVin}` })
+        apiFetch.use(apiFetch.createNonceMiddleware(vinRecallsData.nonce));
+
+        apiFetch({ path: `${vinRecallsData.apiUrl}search?vin=${searchVin}` })
             .then((data) => {
                 if (data.message) {
                     setMessage(data.message);

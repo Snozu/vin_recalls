@@ -10,31 +10,19 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Load environment variables from .env file
-function vin_recalls_load_env() {
-    $env_file = plugin_dir_path(__FILE__) . '.env';
-    if (file_exists($env_file)) {
-        $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-                list($key, $value) = explode('=', $line, 2);
-                $key = trim($key);
-                $value = trim($value);
-                if (!defined($key)) {
-                    define($key, $value);
-                }
-            }
-        }
-        return true;
-    }
-    return false;
-}
+// Database credentials should be defined in wp-config.php
+// Example:
+// define('REMOTE_DB_HOST', 'your_remote_db_host');
+// define('REMOTE_DB_NAME', 'your_remote_db_name');
+// define('REMOTE_DB_USER', 'your_remote_db_user');
+// define('REMOTE_DB_PASSWORD', 'your_remote_db_password');
 
-// Load environment variables and check if successful
-if (!vin_recalls_load_env()) {
+// Check if all required database credentials are defined
+if (!defined('REMOTE_DB_HOST') || !defined('REMOTE_DB_NAME') || 
+    !defined('REMOTE_DB_USER') || !defined('REMOTE_DB_PASSWORD')) {
     // Only log error in admin area to avoid exposing issues to users
     add_action('admin_notices', function() {
-        echo '<div class="error"><p>VIN Recalls Plugin: No se pudo cargar el archivo .env con las credenciales de la base de datos.</p></div>';
+        echo '<div class="error"><p>VIN Recalls Plugin: Error en la configuración de la base de datos.</p></div>';
     });
 }
 
@@ -52,6 +40,15 @@ function vin_recalls_enqueue_scripts() {
         $asset_file['dependencies'],
         $asset_file['version'],
         true
+    );
+
+    wp_localize_script(
+        'vin-recalls-react',
+        'vinRecallsData',
+        [
+            'apiUrl' => esc_url_raw(rest_url('vin-recalls/v1/')),
+            'nonce'  => wp_create_nonce('wp_rest'),
+        ]
     );
 
     wp_enqueue_style(
@@ -123,3 +120,15 @@ function vin_recalls_search_callback(WP_REST_Request $request) {
         ], 200);
     }
 }
+
+// Función para la vista de administración (comentada por ahora)
+/*
+function vista_admin() {
+    $html = '<div class="wrap">';
+    
+    // Código de la vista de administración aquí
+    
+    $html .= '</div>';
+    echo $html;
+}
+*/
